@@ -39,8 +39,9 @@
     <Reference Include="EntityFramework.SqlServer">
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
-    <Reference Include="IdentityAdmin">
-      <HintPath>..\lib\IdentityAdmin.dll</HintPath>
+    <Reference Include="IdentityAdmin, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\IdentityServer3.Admin.1.0.0-beta1\IdentityAdmin.dll</HintPath>
     </Reference>
     <Reference Include="IdentityServer3">
       <HintPath>..\packages\IdentityServer3.2.0.0\lib\net45\IdentityServer3.dll</HintPath>
