@@ -30,7 +30,7 @@ namespace Host.Config
                         Constants.StandardScopes.Profile,
                         Constants.StandardScopes.Email
                     },
-                    AccessTokenType = AccessTokenType.Jwt
+                    AccessTokenType = AccessTokenType.Jwt,
                 },
                 new Client
                 {
