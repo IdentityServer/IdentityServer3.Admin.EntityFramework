@@ -12,7 +12,7 @@
         <language>en-US</language>
         <tags>IdentityAdmin, Identity</tags>
         <dependencies>
-            <group targetFramework=".NETFramework4.5">
+            <group targetFramework=".NETFramework4.5.2" >
                 <dependency id="IdentityServer3.Admin" version="1.0.0-beta1" />
             </group>
         </dependencies>
