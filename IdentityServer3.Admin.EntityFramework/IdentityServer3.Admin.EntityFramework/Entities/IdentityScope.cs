@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Bert Hoorne,Dominick Baier, Brock Allen
+ * Copyright 2015 Bert Hoorne, Dominick Baier, Brock Allen
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,9 @@ namespace IdentityServer3.Admin.EntityFramework.Entities
         public bool IncludeAllClaimsForUser { get; set; }
         public bool Required { get; set; }
         public ICollection<ScopeClaim> ScopeClaims { get; set; }
+        public ICollection<ScopeSecret> ScopeSecrets { get; set; }
         public bool ShowInDiscoveryDocument { get; set; }
         public int Type { get; set; }
+        public bool AllowUnrestrictedIntrospection { get; set; }
     }
 }
