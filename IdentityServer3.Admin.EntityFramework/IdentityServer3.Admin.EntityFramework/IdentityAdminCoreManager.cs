@@ -488,8 +488,8 @@ namespace IdentityServer3.Admin.EntityFramework
             var clientNameClaim = properties.Single(x => x.Type == "ClientName");
             var clientIdClaim = properties.Single(x => x.Type == "ClientId");
 
-            var clientId = clientNameClaim.Value;
-            var clientName = clientIdClaim.Value;
+            var clientId = clientIdClaim.Value;
+            var clientName = clientNameClaim.Value;
 
             string[] exclude = new string[] { "ClientName", "ClientId" };
             var otherProperties = properties.Where(x => !exclude.Contains(x.Type)).ToArray();
