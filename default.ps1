@@ -9,9 +9,8 @@ properties {
 	$xunit_path = "$src_directory\packages\xunit.runners.1.9.2\tools\xunit.console.clr4.exe"
 	$ilmerge_path = "$src_directory\packages\ilmerge.2.14.1208\tools\ILMerge.exe"
 	$nuget_path = "$src_directory\.nuget\nuget.exe"
-	
 	$buildNumber = 0;
-	$version = "1.0.0.beta4"
+	$version = "1.0.0.0"
 	$preRelease = $null
 }
 
@@ -49,6 +48,8 @@ task UpdateVersion {
 	"[assembly: AssemblyVersion(""$assemblyVersion"")]" >> $versionAssemblyInfoFile
 	"[assembly: AssemblyFileVersion(""$assemblyFileVersion"")]" >> $versionAssemblyInfoFile
 }
+
+
 
 task CreateNuGetPackage -depends Compile {
 	$vSplit = $version.Split('.')
