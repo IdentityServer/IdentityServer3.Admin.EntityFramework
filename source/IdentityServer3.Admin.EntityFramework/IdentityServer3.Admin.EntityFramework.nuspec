@@ -2,7 +2,7 @@
 <package >
   <metadata>
 	<id>IdentityServer3.Admin.EntityFramework</id>
-	<version>1.0.0-beta1</version>
+	<version>0.0.0</version>
 	<title>IdentityServer3.Admin.EntityFramework</title>
 	<authors>Bert Hoorne,Brock Allen,Dominick Baier</authors>
 	<owners>Bert Hoorne,Brock Allen,Dominick Baier</owners>
@@ -13,7 +13,7 @@
     <summary>Entity Framework-based persistence layer for IdentityAdmin</summary>
 	<description>IdentityAdmin.EntityFramework is a persistence layer for IdentityAdmin configuration data that uses EntityFramework as it's database abstraction.</description>
     <releaseNotes></releaseNotes>
-    <copyright>Copyright 2015</copyright>
+    <copyright>Copyright 2015, 2016</copyright>
     <tags>IdentityServer OpenID Connect OpenIDConnect OAuth2 OWIN ASP.NET Katana WebApi Admin</tags>
 
     <dependencies>
