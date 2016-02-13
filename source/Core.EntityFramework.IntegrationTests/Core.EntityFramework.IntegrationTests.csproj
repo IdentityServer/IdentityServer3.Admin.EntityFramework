@@ -39,12 +39,13 @@
       <HintPath>..\packages\AutoMapper.4.1.1\lib\net45\AutoMapper.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="IdentityAdmin">
-      <HintPath>..\packages\IdentityServer3.Admin.1.0.0-beta1\IdentityAdmin.dll</HintPath>
-    </Reference>
     <Reference Include="IdentityServer3, Version=2.3.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\IdentityServer3.2.3.0\lib\net45\IdentityServer3.dll</HintPath>
       <Private>True</Private>
+    </Reference>
+    <Reference Include="IdentityServer3.Admin, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\IdentityServer3.Admin.1.0.0-beta6\lib\net45\IdentityServer3.Admin.dll</HintPath>
     </Reference>
     <Reference Include="IdentityServer3.EntityFramework, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
