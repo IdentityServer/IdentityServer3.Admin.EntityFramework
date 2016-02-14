@@ -29,7 +29,7 @@ namespace Core.EntityFramework.IntegrationTests
             };
             var m = s2.ToModel();
 
-            Mapper.AssertConfigurationIsValid();
+            EntitiesMap.Config.AssertConfigurationIsValid();
         }
     }
 }

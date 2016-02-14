@@ -39,8 +39,8 @@ namespace IdentityServer3.Admin.EntityFramework
         where TScopeKey : IEquatable<TScopeKey>
     {
         private readonly string _connectionString;
-        private readonly EntityFrameworkServiceOptions _entityFrameworkServiceOptions;
-        
+        private readonly EntityFrameworkServiceOptions _entityFrameworkServiceOptions = new EntityFrameworkServiceOptions();
+        private static IMapper _clientMapper;
         public IdentityAdminCoreManager(string connectionString, bool createIfNotExist = false)
         {
             if (createIfNotExist)
@@ -53,29 +53,31 @@ namespace IdentityServer3.Admin.EntityFramework
                 throw new ArgumentException("A connectionstring or name is needed to initialize the IdentityAdmin");
             }
             _connectionString = connectionString;
-            _entityFrameworkServiceOptions = new EntityFrameworkServiceOptions();
-            Mapper.CreateMap<IdentityClient, Client>();
-            Mapper.CreateMap<Client, IdentityClient>();
-            Mapper.CreateMap<ClientClaim, ClientClaimValue>();
-            Mapper.CreateMap<ClientClaimValue, ClientClaim>();
-            Mapper.CreateMap<ClientSecret, ClientSecretValue>();
-            Mapper.CreateMap<ClientSecretValue, ClientSecret>();
-            Mapper.CreateMap<ClientIdPRestriction, ClientIdPRestrictionValue>();
-            Mapper.CreateMap<ClientIdPRestrictionValue, ClientIdPRestriction>();
-            Mapper.CreateMap<ClientPostLogoutRedirectUri, ClientPostLogoutRedirectUriValue>();
-            Mapper.CreateMap<ClientPostLogoutRedirectUriValue, ClientPostLogoutRedirectUri>();
-            Mapper.CreateMap<ClientRedirectUri, ClientRedirectUriValue>();
-            Mapper.CreateMap<ClientRedirectUriValue, ClientRedirectUri>();
-            Mapper.CreateMap<ClientCorsOrigin, ClientCorsOriginValue>();
-            Mapper.CreateMap<ClientCorsOriginValue, ClientCorsOrigin>();
-            Mapper.CreateMap<ClientCustomGrantType, ClientCustomGrantTypeValue>();
-            Mapper.CreateMap<ClientCustomGrantTypeValue, ClientCustomGrantType>();
-            Mapper.CreateMap<ClientScope, ClientScopeValue>();
-            Mapper.CreateMap<ClientScopeValue, ClientScope>();
-            Mapper.CreateMap<ScopeClaim, ScopeClaimValue>();
-            Mapper.CreateMap<ScopeClaimValue, ScopeClaim>();
-            Mapper.CreateMap<IdentityScope, Scope>();
-            Mapper.CreateMap<Scope, IdentityScope>();
+            var clientConfig = new MapperConfiguration(cfg => {
+                cfg.CreateMap<IdentityClient, Client>();
+                cfg.CreateMap<Client, IdentityClient>();
+                cfg.CreateMap<ClientClaim, ClientClaimValue>();
+                cfg.CreateMap<ClientClaimValue, ClientClaim>();
+                cfg.CreateMap<ClientSecret, ClientSecretValue>();
+                cfg.CreateMap<ClientSecretValue, ClientSecret>();
+                cfg.CreateMap<ClientIdPRestriction, ClientIdPRestrictionValue>();
+                cfg.CreateMap<ClientIdPRestrictionValue, ClientIdPRestriction>();
+                cfg.CreateMap<ClientPostLogoutRedirectUri, ClientPostLogoutRedirectUriValue>();
+                cfg.CreateMap<ClientPostLogoutRedirectUriValue, ClientPostLogoutRedirectUri>();
+                cfg.CreateMap<ClientRedirectUri, ClientRedirectUriValue>();
+                cfg.CreateMap<ClientRedirectUriValue, ClientRedirectUri>();
+                cfg.CreateMap<ClientCorsOrigin, ClientCorsOriginValue>();
+                cfg.CreateMap<ClientCorsOriginValue, ClientCorsOrigin>();
+                cfg.CreateMap<ClientCustomGrantType, ClientCustomGrantTypeValue>();
+                cfg.CreateMap<ClientCustomGrantTypeValue, ClientCustomGrantType>();
+                cfg.CreateMap<ClientScope, ClientScopeValue>();
+                cfg.CreateMap<ClientScopeValue, ClientScope>();
+                cfg.CreateMap<ScopeClaim, ScopeClaimValue>();
+                cfg.CreateMap<ScopeClaimValue, ScopeClaim>();
+                cfg.CreateMap<IdentityScope, Scope>();
+                cfg.CreateMap<Scope, IdentityScope>();
+            });
+            _clientMapper = clientConfig.CreateMapper();
         }
         public Task<IdentityAdminMetadata> GetMetadataAsync()
         {
@@ -138,7 +140,7 @@ namespace IdentityServer3.Admin.EntityFramework
                         return new IdentityAdminResult<ScopeDetail>((ScopeDetail)null);
                     }
                     var coreScope = new TScope();
-                    Mapper.Map(efScope, coreScope);
+                    _clientMapper.Map(efScope, coreScope);
                     var result = new ScopeDetail
                     {
                         Subject = subject,
@@ -156,7 +158,7 @@ namespace IdentityServer3.Admin.EntityFramework
 
                     result.Properties = props.ToArray();
                     result.ScopeClaimValues = new List<ScopeClaimValue>();
-                    Mapper.Map(efScope.ScopeClaims.ToList(), result.ScopeClaimValues);
+                    _clientMapper.Map(efScope.ScopeClaims.ToList(), result.ScopeClaimValues);
 
                     return new IdentityAdminResult<ScopeDetail>(result);
                 }
@@ -231,7 +233,7 @@ namespace IdentityServer3.Admin.EntityFramework
             {
                 try
                 {
-                    Mapper.Map(scope, efSCope);
+                    _clientMapper.Map(scope, efSCope);
                     db.Scopes.Add(efSCope);
                     db.SaveChanges();
                 }
@@ -260,13 +262,13 @@ namespace IdentityServer3.Admin.EntityFramework
                         }
                         var meta = await GetMetadataAsync();
                         var coreScope = new TScope();
-                        Mapper.Map(efScope, coreScope);
+                        _clientMapper.Map(efScope, coreScope);
                         var propResult = SetScopeProperty(meta.ScopeMetaData.UpdateProperties, coreScope, type, value);
                         if (!propResult.IsSuccess)
                         {
                             return propResult;
                         }
-                        Mapper.Map(coreScope, efScope);
+                        _clientMapper.Map(coreScope, efScope);
 
                         await db.SaveChangesAsync();
 
@@ -397,7 +399,7 @@ namespace IdentityServer3.Admin.EntityFramework
                         return new IdentityAdminResult<ClientDetail>((ClientDetail)null);
                     }
                     var coreClient = new TCLient();
-                    Mapper.Map(eFclient, coreClient);
+                    _clientMapper.Map(eFclient, coreClient);
                     var result = new ClientDetail
                     {
                         Subject = subject,
@@ -417,21 +419,21 @@ namespace IdentityServer3.Admin.EntityFramework
                     result.Properties = props.ToArray();
 
                     result.AllowedCorsOrigins = new List<ClientCorsOriginValue>();
-                    Mapper.Map(eFclient.AllowedCorsOrigins.ToList(), result.AllowedCorsOrigins);
+                    _clientMapper.Map(eFclient.AllowedCorsOrigins.ToList(), result.AllowedCorsOrigins);
                     result.AllowedCustomGrantTypes = new List<ClientCustomGrantTypeValue>();
-                    Mapper.Map(eFclient.AllowedCustomGrantTypes.ToList(), result.AllowedCustomGrantTypes);
+                    _clientMapper.Map(eFclient.AllowedCustomGrantTypes.ToList(), result.AllowedCustomGrantTypes);
                     result.AllowedScopes = new List<ClientScopeValue>();
-                    Mapper.Map(eFclient.AllowedScopes.ToList(), result.AllowedScopes);
+                    _clientMapper.Map(eFclient.AllowedScopes.ToList(), result.AllowedScopes);
                     result.Claims = new List<ClientClaimValue>();
-                    Mapper.Map(eFclient.Claims.ToList(), result.Claims);
+                    _clientMapper.Map(eFclient.Claims.ToList(), result.Claims);
                     result.ClientSecrets = new List<ClientSecretValue>();
-                    Mapper.Map(eFclient.ClientSecrets.ToList(), result.ClientSecrets);
+                    _clientMapper.Map(eFclient.ClientSecrets.ToList(), result.ClientSecrets);
                     result.IdentityProviderRestrictions = new List<ClientIdPRestrictionValue>();
-                    Mapper.Map(eFclient.IdentityProviderRestrictions.ToList(), result.IdentityProviderRestrictions);
+                    _clientMapper.Map(eFclient.IdentityProviderRestrictions.ToList(), result.IdentityProviderRestrictions);
                     result.PostLogoutRedirectUris = new List<ClientPostLogoutRedirectUriValue>();
-                    Mapper.Map(eFclient.PostLogoutRedirectUris.ToList(), result.PostLogoutRedirectUris);
+                    _clientMapper.Map(eFclient.PostLogoutRedirectUris.ToList(), result.PostLogoutRedirectUris);
                     result.RedirectUris = new List<ClientRedirectUriValue>();
-                    Mapper.Map(eFclient.RedirectUris.ToList(), result.RedirectUris);
+                    _clientMapper.Map(eFclient.RedirectUris.ToList(), result.RedirectUris);
 
                     return new IdentityAdminResult<ClientDetail>(result);
                 }
@@ -512,7 +514,7 @@ namespace IdentityServer3.Admin.EntityFramework
             {
                 try
                 {
-                    Mapper.Map(client, efClient);
+                    _clientMapper.Map(client, efClient);
                     db.Clients.Add(efClient);
                     db.SaveChanges();
                 }
@@ -541,13 +543,13 @@ namespace IdentityServer3.Admin.EntityFramework
                         }
                         var meta = await GetMetadataAsync();
                         var coreClient = new TCLient();
-                        Mapper.Map(eFclient, coreClient);
+                        _clientMapper.Map(eFclient, coreClient);
                         var propResult = SetClientProperty(meta.ClientMetaData.UpdateProperties, coreClient, type, value);
                         if (!propResult.IsSuccess)
                         {
                             return propResult;
                         }
-                        Mapper.Map(coreClient, eFclient);
+                        _clientMapper.Map(coreClient, eFclient);
 
                         await db.SaveChangesAsync();
 

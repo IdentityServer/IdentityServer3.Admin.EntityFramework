@@ -58,5 +58,6 @@ namespace IdentityServer3.Admin.EntityFramework.Entities
         public ICollection<ClientCorsOrigin> AllowedCorsOrigins { get; set; }
         public ICollection<ClientCustomGrantType> AllowedCustomGrantTypes { get; set; }
         public ICollection<ClientScope> AllowedScopes { get; set; }
+        public bool RequireSignOutPrompt { get; set; }
     }
 }

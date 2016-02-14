@@ -25,26 +25,29 @@ namespace IdentityServer3.Admin.EntityFramework.Extensions
 {
     public static class ModelMap
     {
-
+        private static readonly MapperConfiguration Config;
         static ModelMap()
         {
-            Mapper.CreateMap<Core.Models.Scope, IdentityScope>(MemberList.Source)
-                .ForSourceMember(x => x.Claims, opts => opts.Ignore())
-                .ForMember(x => x.ScopeClaims, opts => opts.MapFrom(src => src.Claims.Select(x => x)))
-                .ForMember(x => x.ScopeSecrets, opts => opts.MapFrom(src => src.ScopeSecrets.Select(x => x)));
-            Mapper.CreateMap< Core.Models.ScopeClaim, IdentityServer3.EntityFramework.Entities.ScopeClaim>(MemberList.Source);
-            Mapper.CreateMap< Core.Models.Secret, IdentityServer3.EntityFramework.Entities.ScopeSecret>(MemberList.Source);
-            Mapper.CreateMap< Core.Models.Secret, IdentityServer3.EntityFramework.Entities.ClientSecret>(MemberList.Source);
-            Mapper.CreateMap<Core.Models.Client, IdentityClient>(MemberList.Source)
-                .ForMember(x => x.UpdateAccessTokenOnRefresh, opt => opt.MapFrom(src => src.UpdateAccessTokenClaimsOnRefresh))
-                .ForMember(x => x.AllowAccessToAllGrantTypes, opt => opt.MapFrom(src => src.AllowAccessToAllCustomGrantTypes))
-                .ForMember(x => x.AllowedCustomGrantTypes, opt => opt.MapFrom(src => src.AllowedCustomGrantTypes.Select(x => new IdentityServer3.EntityFramework.Entities.ClientCustomGrantType { GrantType = x })))
-                .ForMember(x => x.RedirectUris, opt => opt.MapFrom(src => src.RedirectUris.Select(x => new IdentityServer3.EntityFramework.Entities.ClientRedirectUri { Uri = x })))
-                .ForMember(x => x.PostLogoutRedirectUris, opt => opt.MapFrom(src => src.PostLogoutRedirectUris.Select(x => new IdentityServer3.EntityFramework.Entities.ClientPostLogoutRedirectUri { Uri = x })))
-                .ForMember(x => x.IdentityProviderRestrictions, opt => opt.MapFrom(src => src.IdentityProviderRestrictions.Select(x => new IdentityServer3.EntityFramework.Entities.ClientIdPRestriction { Provider = x })))
-                .ForMember(x => x.AllowedScopes, opt => opt.MapFrom(src => src.AllowedScopes.Select(x => new IdentityServer3.EntityFramework.Entities.ClientScope { Scope = x })))
-                .ForMember(x => x.AllowedCorsOrigins, opt => opt.MapFrom(src => src.AllowedCorsOrigins.Select(x => new IdentityServer3.EntityFramework.Entities.ClientCorsOrigin { Origin = x })))
-                .ForMember(x => x.Claims, opt => opt.MapFrom(src => src.Claims.Select(x => new IdentityServer3.EntityFramework.Entities.ClientClaim { Type = x.Type, Value = x.Value })));
+            Config = new MapperConfiguration(cfg => {
+                cfg.CreateMap<Scope, IdentityScope>(MemberList.Source)
+               .ForSourceMember(x => x.Claims, opts => opts.Ignore())
+               .ForMember(x => x.ScopeClaims, opts => opts.MapFrom(src => src.Claims.Select(x => x)))
+               .ForMember(x => x.ScopeSecrets, opts => opts.MapFrom(src => src.ScopeSecrets.Select(x => x)));
+                cfg.CreateMap<ScopeClaim, IdentityServer3.EntityFramework.Entities.ScopeClaim>(MemberList.Source);
+                cfg.CreateMap<Secret, IdentityServer3.EntityFramework.Entities.ScopeSecret>(MemberList.Source);
+                cfg.CreateMap<Secret, IdentityServer3.EntityFramework.Entities.ClientSecret>(MemberList.Source);
+                cfg.CreateMap<Client, IdentityClient>(MemberList.Source)
+                    .ForMember(x => x.UpdateAccessTokenOnRefresh, opt => opt.MapFrom(src => src.UpdateAccessTokenClaimsOnRefresh))
+                    .ForMember(x => x.AllowAccessToAllGrantTypes, opt => opt.MapFrom(src => src.AllowAccessToAllCustomGrantTypes))
+                    .ForMember(x => x.AllowedCustomGrantTypes, opt => opt.MapFrom(src => src.AllowedCustomGrantTypes.Select(x => new IdentityServer3.EntityFramework.Entities.ClientCustomGrantType { GrantType = x })))
+                    .ForMember(x => x.RedirectUris, opt => opt.MapFrom(src => src.RedirectUris.Select(x => new IdentityServer3.EntityFramework.Entities.ClientRedirectUri { Uri = x })))
+                    .ForMember(x => x.PostLogoutRedirectUris, opt => opt.MapFrom(src => src.PostLogoutRedirectUris.Select(x => new IdentityServer3.EntityFramework.Entities.ClientPostLogoutRedirectUri { Uri = x })))
+                    .ForMember(x => x.IdentityProviderRestrictions, opt => opt.MapFrom(src => src.IdentityProviderRestrictions.Select(x => new IdentityServer3.EntityFramework.Entities.ClientIdPRestriction { Provider = x })))
+                    .ForMember(x => x.AllowedScopes, opt => opt.MapFrom(src => src.AllowedScopes.Select(x => new IdentityServer3.EntityFramework.Entities.ClientScope { Scope = x })))
+                    .ForMember(x => x.AllowedCorsOrigins, opt => opt.MapFrom(src => src.AllowedCorsOrigins.Select(x => new IdentityServer3.EntityFramework.Entities.ClientCorsOrigin { Origin = x })))
+                    .ForMember(x => x.Claims, opt => opt.MapFrom(src => src.Claims.Select(x => new IdentityServer3.EntityFramework.Entities.ClientClaim { Type = x.Type, Value = x.Value })));
+            });
+               
         }
 
         public static IdentityScope ToEntity(this Core.Models.Scope s)
@@ -60,7 +63,7 @@ namespace IdentityServer3.Admin.EntityFramework.Extensions
                 s.ScopeSecrets = new List<Secret>();
             }
 
-            return Mapper.Map<Core.Models.Scope, IdentityScope>(s);
+            return Config.CreateMapper().Map<Core.Models.Scope, IdentityScope>(s);
         }
 
         public static IdentityClient ToEntity(this Core.Models.Client s)
@@ -100,7 +103,7 @@ namespace IdentityServer3.Admin.EntityFramework.Extensions
                 s.AllowedCorsOrigins = new List<string>();
             }
 
-            return Mapper.Map<Core.Models.Client, IdentityClient>(s);
+            return Config.CreateMapper().Map<Core.Models.Client, IdentityClient>(s);
         }
     }
 }
