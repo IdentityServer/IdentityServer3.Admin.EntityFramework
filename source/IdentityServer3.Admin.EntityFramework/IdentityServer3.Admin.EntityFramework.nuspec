@@ -2,7 +2,7 @@
 <package >
   <metadata>
 	<id>IdentityServer3.Admin.EntityFramework</id>
-	<version>0.0.0</version>
+	<version>1.0.0-beta6</version>
 	<title>IdentityServer3.Admin.EntityFramework</title>
 	<authors>Bert Hoorne,Brock Allen,Dominick Baier</authors>
 	<owners>Bert Hoorne,Brock Allen,Dominick Baier</owners>
@@ -17,11 +17,11 @@
     <tags>IdentityServer OpenID Connect OpenIDConnect OAuth2 OWIN ASP.NET Katana WebApi Admin</tags>
 
     <dependencies>
-	  <dependency id="AutoMapper" version="4.1.1" />
+	  <dependency id="AutoMapper" version="4.2.0" />
 	  <dependency id="EntityFramework" version="6.1.3" />
-	  <dependency id="IdentityServer3" version="2.3.0"  />
+	  <dependency id="IdentityServer3" version="2.4.0"  />
 	  <dependency id="IdentityServer3.Admin" version="1.0.0-beta7"/>
-	  <dependency id="IdentityServer3.EntityFramework" version="2.3.0" />
+	  <dependency id="IdentityServer3.EntityFramework" version="2.4.1" />
 	  <dependency id="Newtonsoft.Json" version="8.0.2" />
     </dependencies>
   </metadata>
