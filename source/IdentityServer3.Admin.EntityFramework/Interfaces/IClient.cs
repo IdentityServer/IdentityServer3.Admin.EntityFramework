@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+using System.Collections.Generic;
+using IdentityServer3.Core.Models;
+using IdentityServer3.EntityFramework.Entities;
+
 namespace IdentityServer3.Admin.EntityFramework.Interfaces
 {
     // Summary:
@@ -35,5 +39,38 @@ namespace IdentityServer3.Admin.EntityFramework.Interfaces
         // Summary:
         //     Client name
         string ClientName { get; set; }
+        int AbsoluteRefreshTokenLifetime { get; set; }
+        int AccessTokenLifetime { get; set; }
+        bool AllowAccessToAllGrantTypes { get; set; }
+        bool AllowAccessToAllScopes { get; set; }
+        bool AllowClientCredentialsOnly { get; set; }
+        bool AllowRememberConsent { get; set; }
+        bool AlwaysSendClientClaims { get; set; }
+        int AuthorizationCodeLifetime { get; set; }
+        string ClientUri { get; set; }
+        bool Enabled { get; set; }
+        bool EnableLocalLogin { get; set; }
+        int IdentityTokenLifetime { get; set; }
+        bool IncludeJwtId { get; set; }
+        string LogoUri { get; set; }
+        bool PrefixClientClaims { get; set; }
+        bool RequireConsent { get; set; }
+        int SlidingRefreshTokenLifetime { get; set; }
+        bool UpdateAccessTokenOnRefresh { get; set; }
+        bool LogoutSessionRequired { get; set; }
+        string LogoutUri { get; set; }
+        TokenExpiration RefreshTokenExpiration { get; set; }
+        TokenUsage RefreshTokenUsage { get; set; }
+        AccessTokenType AccessTokenType { get; set; }
+        Flows Flow { get; set; }
+        ICollection<ClientClaim> Claims { get; set; }
+        ICollection<ClientSecret> ClientSecrets { get; set; }
+        ICollection<ClientIdPRestriction> IdentityProviderRestrictions { get; set; }
+        ICollection<ClientPostLogoutRedirectUri> PostLogoutRedirectUris { get; set; }
+        ICollection<ClientRedirectUri> RedirectUris { get; set; }
+        ICollection<ClientCorsOrigin> AllowedCorsOrigins { get; set; }
+        ICollection<ClientCustomGrantType> AllowedCustomGrantTypes { get; set; }
+        ICollection<ClientScope> AllowedScopes { get; set; }
+        bool RequireSignOutPrompt { get; set; }
     }
 }
