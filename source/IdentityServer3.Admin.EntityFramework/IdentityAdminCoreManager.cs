@@ -36,8 +36,8 @@ using ScopeClaim = IdentityServer3.EntityFramework.Entities.ScopeClaim;
 
 namespace IdentityServer3.Admin.EntityFramework
 {
-    public class IdentityAdminCoreManager<TCLient, TClientKey, TScope, TScopeKey> : IIdentityAdminService
-        where TCLient : class, IClient<TClientKey>, new()
+    public class IdentityAdminCoreManager<TClient, TClientKey, TScope, TScopeKey> : IIdentityAdminService
+        where TClient : class, IClient<TClientKey>, new()
         where TClientKey : IEquatable<TClientKey>
         where TScope : class, IScope<TScopeKey>, new()
         where TScopeKey : IEquatable<TScopeKey>
@@ -80,18 +80,20 @@ namespace IdentityServer3.Admin.EntityFramework
                 cfg.CreateMap<ScopeClaimValue, ScopeClaim>();
                 cfg.CreateMap<IdentityScope, Scope>();
                 cfg.CreateMap<Scope, IdentityScope>();
+                cfg.CreateMap<TClient, Client>();
+                cfg.CreateMap<TScope, Scope>();
             });
             _clientMapper = clientConfig.CreateMapper();
         }
         public Task<IdentityAdminMetadata> GetMetadataAsync()
         {
             var updateClient = new List<PropertyMetadata>();
-            updateClient.AddRange(PropertyMetadata.FromType<TCLient>());
+            updateClient.AddRange(PropertyMetadata.FromType<TClient>());
 
             var createClient = new List<PropertyMetadata>
             {
-                PropertyMetadata.FromProperty<TCLient>(x => x.ClientName,"ClientName", required: true),
-                PropertyMetadata.FromProperty<TCLient>(x => x.ClientId,"ClientId", required: true),
+                PropertyMetadata.FromProperty<TClient>(x => x.ClientName,"ClientName", required: true),
+                PropertyMetadata.FromProperty<TClient>(x => x.ClientId,"ClientId", required: true),
             };
 
             var client = new ClientMetaData
@@ -402,7 +404,7 @@ namespace IdentityServer3.Admin.EntityFramework
                     {
                         return new IdentityAdminResult<ClientDetail>((ClientDetail)null);
                     }
-                    var coreClient = new TCLient();
+                    var coreClient = new TClient();
                     _clientMapper.Map(eFclient, coreClient);
                     var result = new ClientDetail
                     {
@@ -503,7 +505,7 @@ namespace IdentityServer3.Admin.EntityFramework
             var metadata = await GetMetadataAsync();
             var createProps = metadata.ClientMetaData.CreateProperties;
 
-            var client = new TCLient { ClientId = clientId, ClientName = clientName };
+            var client = new TClient { ClientId = clientId, ClientName = clientName };
             foreach (var prop in otherProperties)
             {
                 var propertyResult = SetClientProperty(createProps, client, prop.Type, prop.Value);
@@ -559,7 +561,7 @@ namespace IdentityServer3.Admin.EntityFramework
                             return new IdentityAdminResult("Invalid subject");
                         }
                         var meta = await GetMetadataAsync();
-                        var coreClient = new TCLient();
+                        var coreClient = new TClient();
                         _clientMapper.Map(eFclient, coreClient);
                         var propResult = SetClientProperty(meta.ClientMetaData.UpdateProperties, coreClient, type, value);
                         if (!propResult.IsSuccess)
@@ -1176,7 +1178,7 @@ namespace IdentityServer3.Admin.EntityFramework
         #endregion
 
         #region helperMethods
-        protected IdentityAdminResult SetClientProperty(IEnumerable<PropertyMetadata> propsMeta, TCLient client, string type, string value)
+        protected IdentityAdminResult SetClientProperty(IEnumerable<PropertyMetadata> propsMeta, TClient client, string type, string value)
         {
             IdentityAdminResult result;
             if (propsMeta.TrySet(client, type, value, out result))
@@ -1187,7 +1189,7 @@ namespace IdentityServer3.Admin.EntityFramework
             throw new Exception("Invalid property type " + type);
         }
 
-        protected string GetClientProperty(PropertyMetadata propMetadata, TCLient client)
+        protected string GetClientProperty(PropertyMetadata propMetadata, TClient client)
         {
             string val;
             if (propMetadata.TryGet(client, out val))
