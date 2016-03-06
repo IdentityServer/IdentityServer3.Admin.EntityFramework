@@ -43,8 +43,8 @@
       <HintPath>..\packages\IdentityServer3.2.4.0\lib\net45\IdentityServer3.dll</HintPath>
     </Reference>
     <Reference Include="IdentityServer3.Admin, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\IdentityServer3.Admin.1.0.0-beta6\lib\net45\IdentityServer3.Admin.dll</HintPath>
+      <HintPath>..\packages\IdentityServer3.Admin.1.0.0-beta7\lib\net45\IdentityServer3.Admin.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="IdentityServer3.EntityFramework">
       <HintPath>..\packages\IdentityServer3.EntityFramework.2.4.1\lib\net45\IdentityServer3.EntityFramework.dll</HintPath>

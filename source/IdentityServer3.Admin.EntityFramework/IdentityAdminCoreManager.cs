@@ -27,8 +27,12 @@ using IdentityAdmin.Core.Scope;
 using IdentityAdmin.Extensions;
 using IdentityServer3.Admin.EntityFramework.Entities;
 using IdentityServer3.Admin.EntityFramework.Interfaces;
+using IdentityServer3.Core.Models;
 using IdentityServer3.EntityFramework;
 using IdentityServer3.EntityFramework.Entities;
+using Client = IdentityServer3.EntityFramework.Entities.Client;
+using Scope = IdentityServer3.EntityFramework.Entities.Scope;
+using ScopeClaim = IdentityServer3.EntityFramework.Entities.ScopeClaim;
 
 namespace IdentityServer3.Admin.EntityFramework
 {
@@ -515,6 +519,19 @@ namespace IdentityServer3.Admin.EntityFramework
                 try
                 {
                     _clientMapper.Map(client, efClient);
+                    efClient.Enabled = true;
+                    efClient.EnableLocalLogin = true;
+                    efClient.RequireConsent = true;
+                    efClient.Flow = Flows.Implicit;
+                    efClient.AllowClientCredentialsOnly = false;
+                    efClient.IdentityTokenLifetime = 300;
+                    efClient.AccessTokenLifetime = 3600;
+                    efClient.AuthorizationCodeLifetime = 300;
+                    efClient.AbsoluteRefreshTokenLifetime = 300;
+                    efClient.SlidingRefreshTokenLifetime = 1296000;
+                    efClient.AccessTokenType = AccessTokenType.Jwt;
+                    efClient.AlwaysSendClientClaims = false;
+                    efClient.PrefixClientClaims = true;
                     db.Clients.Add(efClient);
                     db.SaveChanges();
                 }
