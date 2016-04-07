@@ -15,6 +15,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data.Entity;
 using System.Data.SqlClient;
 using System.Linq;
@@ -78,8 +79,12 @@ namespace IdentityServer3.Admin.EntityFramework
                 cfg.CreateMap<ClientScopeValue, ClientScope>();
                 cfg.CreateMap<ScopeClaim, ScopeClaimValue>();
                 cfg.CreateMap<ScopeClaimValue, ScopeClaim>();
+                cfg.CreateMap<ScopeSecret, ScopeSecretValue>();
+                cfg.CreateMap<ScopeSecretValue, ScopeSecret>();
                 cfg.CreateMap<IdentityScope, Scope>();
                 cfg.CreateMap<Scope, IdentityScope>();
+                cfg.CreateMap<DateTime?, DateTimeOffset?>().ConvertUsing<NullableDateTimeOffsetConverter>();
+                cfg.CreateMap<DateTimeOffset?, DateTime?>().ConvertUsing<NullableOffsetDateTimeConverter>();
             });
             _clientMapper = clientConfig.CreateMapper();
         }
@@ -162,7 +167,9 @@ namespace IdentityServer3.Admin.EntityFramework
 
                     result.Properties = props.ToArray();
                     result.ScopeClaimValues = new List<ScopeClaimValue>();
+                    result.ScopeSecretValues = new List<ScopeSecretValue>();
                     _clientMapper.Map(efScope.ScopeClaims.ToList(), result.ScopeClaimValues);
+                    _clientMapper.Map(efScope.ScopeSecrets.ToList(), result.ScopeSecretValues);
 
                     return new IdentityAdminResult<ScopeDetail>(result);
                 }
@@ -316,6 +323,7 @@ namespace IdentityServer3.Admin.EntityFramework
             return new IdentityAdminResult("Invalid subject");
         }
 
+
         #region Scope claim
 
         public async Task<IdentityAdminResult> AddScopeClaimAsync(string subject, string name, string description, bool alwaysIncludeInIdToken)
@@ -386,7 +394,157 @@ namespace IdentityServer3.Admin.EntityFramework
             return new IdentityAdminResult("Invalid subject or clientId");
         }
 
+        public async Task<IdentityAdminResult> UpdateScopeClaim(string subject, string scopeClaimSubject, string name, string description,
+            bool alwaysIncludeInIdToken)
+        {
+            int parsedSubject, parsedScopeClaimSubject;
+            if (int.TryParse(subject, out parsedSubject) && int.TryParse(scopeClaimSubject, out parsedScopeClaimSubject))
+            {
+                using (var db = new ScopeConfigurationDbContext(_connectionString, _entityFrameworkServiceOptions.Schema))
+                {
+                    try
+                    {
+                        var scope = await db.Scopes.FirstOrDefaultAsync(p => p.Id == parsedSubject);
+                        if (scope == null)
+                        {
+                            return new IdentityAdminResult("Invalid subject");
+                        }
+                        var existingClaim = scope.ScopeClaims.FirstOrDefault(p => p.Id == parsedScopeClaimSubject);
+                        if (existingClaim != null)
+                        {
+                            existingClaim.AlwaysIncludeInIdToken = alwaysIncludeInIdToken;
+                            await db.SaveChangesAsync();
+                        }
+                        return IdentityAdminResult.Success;
+                    }
+                    catch (SqlException ex)
+                    {
+                        return new IdentityAdminResult<CreateResult>(ex.Message);
+                    }
+                }
+            }
+            return new IdentityAdminResult("Invalid subject or claimId");
+        }
+
         #endregion
+
+        #region scope Secret
+
+
+        public async Task<IdentityAdminResult> AddScopeSecretAsync(string subject, string type, string value, string description, DateTime? expiration)
+        {
+            int parsedSubject;
+            if (int.TryParse(subject, out parsedSubject))
+            {
+                using (var db = new ScopeConfigurationDbContext(_connectionString, _entityFrameworkServiceOptions.Schema))
+                {
+                    try
+                    {
+                        var scope = await db.Scopes.FirstOrDefaultAsync(p => p.Id == parsedSubject);
+                        if (scope == null)
+                        {
+                            return new IdentityAdminResult("Invalid subject");
+                        }
+                        var existingSecrets = scope.ScopeSecrets;
+                        if (!existingSecrets.Any(x => x.Type == type && x.Value == value))
+                        {
+                            var scopeSecret = new ScopeSecret
+                            {
+                                Type = type,
+                                Value = value,
+                                Description = description
+
+                            };
+                            if (expiration.HasValue)
+                            {
+                                scopeSecret.Expiration = expiration.Value;
+                            }
+                            scope.ScopeSecrets.Add(scopeSecret);
+                            db.SaveChanges();
+                        }
+                        return IdentityAdminResult.Success;
+                    }
+                    catch (SqlException ex)
+                    {
+                        return new IdentityAdminResult<CreateResult>(ex.Message);
+                    }
+                }
+            }
+            return new IdentityAdminResult("Invalid subject");
+        }
+
+        public async Task<IdentityAdminResult> UpdateScopeSecret(string subject, string scopeSecretSubject, string type, string value, string description,
+            DateTime? expiration)
+        {
+            int parsedSubject, parsedScopeSecretSubject;
+            if (int.TryParse(subject, out parsedSubject) && int.TryParse(scopeSecretSubject, out parsedScopeSecretSubject))
+            {
+                using (var db = new ScopeConfigurationDbContext(_connectionString, _entityFrameworkServiceOptions.Schema))
+                {
+                    try
+                    {
+                        var scope = await db.Scopes.FirstOrDefaultAsync(p => p.Id == parsedSubject);
+                        if (scope == null)
+                        {
+                            return new IdentityAdminResult("Invalid subject");
+                        }
+                        var existingSecret = scope.ScopeSecrets.FirstOrDefault(p => p.Id == parsedScopeSecretSubject);
+                        if (existingSecret != null)
+                        {
+                            existingSecret.Value = value;
+                            existingSecret.Type = type;
+                            existingSecret.Description = description;
+                            if (expiration.HasValue)
+                            {
+                                //Save as new DateTimeOffset(expiration.Value)
+                                existingSecret.Expiration = expiration.Value;
+                            }
+                            await db.SaveChangesAsync();
+                        }
+                        return IdentityAdminResult.Success;
+                    }
+                    catch (SqlException ex)
+                    {
+                        return new IdentityAdminResult<CreateResult>(ex.Message);
+                    }
+                }
+            }
+            return new IdentityAdminResult("Invalid subject or secret id");
+        }
+
+        public async Task<IdentityAdminResult> RemoveScopeSecretAsync(string subject, string id)
+        {
+            int parsedSubject;
+            int parsedSecretId;
+            if (int.TryParse(subject, out parsedSubject) && int.TryParse(id, out parsedSecretId))
+            {
+                using (var db = new ScopeConfigurationDbContext(_connectionString, _entityFrameworkServiceOptions.Schema))
+                {
+                    try
+                    {
+                        var scope = await db.Scopes.FirstOrDefaultAsync(p => p.Id == parsedSubject);
+                        if (scope == null)
+                        {
+                            return new IdentityAdminResult("Invalid subject");
+                        }
+                        var existingSecret = scope.ScopeSecrets.FirstOrDefault(p => p.Id == parsedSecretId);
+                        if (existingSecret != null)
+                        {
+                            scope.ScopeSecrets.Remove(existingSecret);
+                            await db.SaveChangesAsync();
+                        }
+                        return IdentityAdminResult.Success;
+                    }
+                    catch (SqlException ex)
+                    {
+                        return new IdentityAdminResult<CreateResult>(ex.Message);
+                    }
+                }
+            }
+            return new IdentityAdminResult("Invalid subject or secretId");
+        }
+        #endregion
+
         #endregion
 
         #region Client
@@ -1218,6 +1376,46 @@ namespace IdentityServer3.Admin.EntityFramework
             throw new Exception("Invalid property type " + propMetadata.Type);
         }
 
+
         #endregion
     }
+   
+    public class NullableOffsetDateTimeConverter : TypeConverter<System.DateTimeOffset?, System.DateTime?>
+    {
+        /// <summary>
+        /// Converts data from DateTime to DateTimeOffset
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        protected override System.DateTime? ConvertCore(System.DateTimeOffset? source)
+        {
+            if (source.HasValue)
+                if (source.Value.Offset.Equals(TimeSpan.Zero))
+                    return source.Value.UtcDateTime;
+                else if (source.Value.Offset.Equals(TimeZoneInfo.Local.GetUtcOffset(source.Value.DateTime)))
+                    return DateTime.SpecifyKind(source.Value.DateTime, DateTimeKind.Local);
+                else
+                    return source.Value.DateTime;
+            else
+                return null;
+        }
+    }
+
+    public class NullableDateTimeOffsetConverter : TypeConverter<System.DateTime?, System.DateTimeOffset?>
+    {
+        /// <summary>
+        /// Converts data from DateTime to DateTimeOffset
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        protected override System.DateTimeOffset? ConvertCore(System.DateTime? source)
+        {
+            if (source.HasValue)
+                return source.Value;
+            else
+                return null;
+        }
+    }
+
+
 }

@@ -72,5 +72,6 @@ namespace IdentityServer3.Admin.EntityFramework.Interfaces
         ICollection<ClientCustomGrantType> AllowedCustomGrantTypes { get; set; }
         ICollection<ClientScope> AllowedScopes { get; set; }
         bool RequireSignOutPrompt { get; set; }
+        bool AllowAccessTokensViaBrowser { get; set; }
     }
 }
