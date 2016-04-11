@@ -43,7 +43,7 @@ namespace IdentityServer3.Admin.EntityFramework
         where TScope : class, IScope<TScopeKey>, new()
         where TScopeKey : IEquatable<TScopeKey>
     {
-        private readonly EntityFrameworkServiceOptions _entityFrameworkServiceOptions = new EntityFrameworkServiceOptions();
+        private readonly EntityFrameworkServiceOptions _entityFrameworkServiceOptions;
         private static IMapper _clientMapper;
         public IdentityAdminCoreManager(string connectionString, string schema = null, bool createIfNotExist = false)
         {
@@ -406,7 +406,7 @@ namespace IdentityServer3.Admin.EntityFramework
             int parsedSubject, parsedScopeClaimSubject;
             if (int.TryParse(subject, out parsedSubject) && int.TryParse(scopeClaimSubject, out parsedScopeClaimSubject))
             {
-                using (var db = new ScopeConfigurationDbContext(_connectionString, _entityFrameworkServiceOptions.Schema))
+                using (var db = new ScopeConfigurationDbContext(_entityFrameworkServiceOptions.ConnectionString, _entityFrameworkServiceOptions.Schema))
                 {
                     try
                     {
@@ -442,7 +442,7 @@ namespace IdentityServer3.Admin.EntityFramework
             int parsedSubject;
             if (int.TryParse(subject, out parsedSubject))
             {
-                using (var db = new ScopeConfigurationDbContext(_connectionString, _entityFrameworkServiceOptions.Schema))
+                using (var db = new ScopeConfigurationDbContext(_entityFrameworkServiceOptions.ConnectionString, _entityFrameworkServiceOptions.Schema))
                 {
                     try
                     {
@@ -485,7 +485,7 @@ namespace IdentityServer3.Admin.EntityFramework
             int parsedSubject, parsedScopeSecretSubject;
             if (int.TryParse(subject, out parsedSubject) && int.TryParse(scopeSecretSubject, out parsedScopeSecretSubject))
             {
-                using (var db = new ScopeConfigurationDbContext(_connectionString, _entityFrameworkServiceOptions.Schema))
+                using (var db = new ScopeConfigurationDbContext(_entityFrameworkServiceOptions.ConnectionString, _entityFrameworkServiceOptions.Schema))
                 {
                     try
                     {
@@ -524,7 +524,7 @@ namespace IdentityServer3.Admin.EntityFramework
             int parsedSecretId;
             if (int.TryParse(subject, out parsedSubject) && int.TryParse(id, out parsedSecretId))
             {
-                using (var db = new ScopeConfigurationDbContext(_connectionString, _entityFrameworkServiceOptions.Schema))
+                using (var db = new ScopeConfigurationDbContext(_entityFrameworkServiceOptions.ConnectionString, _entityFrameworkServiceOptions.Schema))
                 {
                     try
                     {
