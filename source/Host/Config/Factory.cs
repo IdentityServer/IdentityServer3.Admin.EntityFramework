@@ -30,12 +30,18 @@ namespace Host.Config
                 ConnectionString = connString,
             };
             var factory = new IdentityServerServiceFactory();
-            //Clients
+
+            // Clients
             ConfigureClients(Clients.Get(), efConfig);
-            //scopes
+            
+            // Scopes
             ConfigureScopes(Scopes.Get(), efConfig);
+            
             factory.RegisterConfigurationServices(efConfig);
             factory.RegisterOperationalServices(efConfig);
+
+            factory.UseInMemoryUsers(Users.Get());
+
             return factory;
         }
 
