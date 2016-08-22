@@ -27,8 +27,8 @@ namespace Core.EntityFramework.IntegrationTests
 
             IdentityScope s2 = new IdentityScope()
             {
-                ScopeClaims = new HashSet<IdentityServer3.EntityFramework.Entities.ScopeClaim>(),
-                ScopeSecrets = new HashSet<IdentityServer3.EntityFramework.Entities.ScopeSecret>(),
+                ScopeClaims = new HashSet<ScopeClaim>(),
+                ScopeSecrets = new HashSet<ScopeSecret>(),
             };
 
             var m = s2.ToModel();

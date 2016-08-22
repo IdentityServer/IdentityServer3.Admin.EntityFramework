@@ -172,11 +172,13 @@ namespace IdentityServer3.Admin.EntityFramework
                                 };
 
                     result.Properties = props.ToArray();
-                    result.ScopeClaimValues = new List<ScopeClaimValue>();
-                    result.ScopeSecretValues = new List<ScopeSecretValue>();
-                    _clientMapper.Map(efScope.ScopeClaims.ToList(), result.ScopeClaimValues);
-                    _clientMapper.Map(efScope.ScopeSecrets.ToList(), result.ScopeSecretValues);
-
+                    var scopeClaimValues = new List<ScopeClaimValue>();
+                    var scopeSecrets = new List<ScopeSecretValue>();
+                  
+                    _clientMapper.Map(efScope.ScopeClaims.ToList(), scopeClaimValues);
+                    _clientMapper.Map(efScope.ScopeSecrets.ToList(), scopeSecrets);
+                    result.ScopeClaimValues = scopeClaimValues;
+                    result.ScopeSecretValues = scopeSecrets;
                     return new IdentityAdminResult<ScopeDetail>(result);
                 }
                 return new IdentityAdminResult<ScopeDetail>((ScopeDetail)null);
@@ -216,7 +218,7 @@ namespace IdentityServer3.Admin.EntityFramework
                         {
                             Subject = x.Id.ToString(),
                             Name = x.Name,
-                            Description = x.Name
+                            Description = x.Description
                         };
 
                         return scope;
@@ -1386,14 +1388,16 @@ namespace IdentityServer3.Admin.EntityFramework
         #endregion
     }
    
-    public class NullableOffsetDateTimeConverter : TypeConverter<System.DateTimeOffset?, System.DateTime?>
+    public class NullableOffsetDateTimeConverter : ITypeConverter<DateTimeOffset?, DateTime?>
     {
         /// <summary>
         /// Converts data from DateTime to DateTimeOffset
         /// </summary>
         /// <param name="source"></param>
+        /// <param name="destination"></param>
+        /// <param name="context"></param>
         /// <returns></returns>
-        protected override System.DateTime? ConvertCore(System.DateTimeOffset? source)
+        public DateTime? Convert(DateTimeOffset? source, DateTime? destination, ResolutionContext context)
         {
             if (source.HasValue)
                 if (source.Value.Offset.Equals(TimeSpan.Zero))
@@ -1407,14 +1411,16 @@ namespace IdentityServer3.Admin.EntityFramework
         }
     }
 
-    public class NullableDateTimeOffsetConverter : TypeConverter<System.DateTime?, System.DateTimeOffset?>
+    public class NullableDateTimeOffsetConverter : ITypeConverter<System.DateTime?, System.DateTimeOffset?>
     {
         /// <summary>
         /// Converts data from DateTime to DateTimeOffset
         /// </summary>
         /// <param name="source"></param>
+        /// <param name="destination"></param>
+        /// <param name="context"></param>
         /// <returns></returns>
-        protected override System.DateTimeOffset? ConvertCore(System.DateTime? source)
+        public DateTimeOffset? Convert(DateTime? source, DateTimeOffset? destination, ResolutionContext context)
         {
             if (source.HasValue)
                 return source.Value;

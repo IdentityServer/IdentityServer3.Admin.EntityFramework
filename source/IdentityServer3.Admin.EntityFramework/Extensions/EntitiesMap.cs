@@ -32,10 +32,10 @@ namespace IdentityServer3.Admin.EntityFramework.Extensions
                                 .ForMember(x => x.ScopeSecrets, opts => opts.MapFrom(src => src.ScopeSecrets.Select(x => x)));
                 cfg.CreateMap<IdentityServer3.EntityFramework.Entities.ScopeClaim, IdentityServer3.Core.Models.ScopeClaim>(MemberList.Destination);
                 cfg.CreateMap<IdentityServer3.EntityFramework.Entities.ScopeSecret, IdentityServer3.Core.Models.Secret>(MemberList.Destination)
-                    .ForMember(dest => dest.Type, opt => opt.Condition(srs => !srs.IsSourceValueNull));
+                    .ForMember(dest => dest.Type, opt => opt.Condition(srs => srs.Value != null));
 
                 cfg.CreateMap<IdentityServer3.EntityFramework.Entities.ClientSecret, IdentityServer3.Core.Models.Secret>(MemberList.Destination)
-                     .ForMember(dest => dest.Type, opt => opt.Condition(srs => !srs.IsSourceValueNull));
+                     .ForMember(dest => dest.Type, opt => opt.Condition(srs => srs.Value != null));
                 cfg.CreateMap<IdentityClient, IdentityServer3.Core.Models.Client>(MemberList.Destination)
                     .ForMember(x => x.UpdateAccessTokenClaimsOnRefresh, opt => opt.MapFrom(src => src.UpdateAccessTokenOnRefresh))
                     .ForMember(x => x.AllowAccessToAllCustomGrantTypes, opt => opt.MapFrom(src => src.AllowAccessToAllGrantTypes))
@@ -50,13 +50,13 @@ namespace IdentityServer3.Admin.EntityFramework.Extensions
             
         }
 
-        public static IdentityServer3.Core.Models.Scope ToModel(this IdentityScope s)
+        public static Core.Models.Scope ToModel(this IdentityScope s)
         {
             if (s == null) return null;
             return Config.CreateMapper().Map<IdentityScope, IdentityServer3.Core.Models.Scope>(s);
         }
 
-        public static IdentityServer3.Core.Models.Client ToModel(this IdentityClient s)
+        public static Core.Models.Client ToModel(this IdentityClient s)
         {
             if (s == null) return null;
             return Config.CreateMapper().Map<IdentityClient, IdentityServer3.Core.Models.Client>(s);
