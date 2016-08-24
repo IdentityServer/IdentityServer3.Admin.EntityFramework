@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 using IdentityAdmin.Configuration;
+using IdentityServer3.Core.Configuration;
 using Owin;
 using Serilog;
 using WebHost.Config;
+using Host.Config;
 
 namespace Host
 {
@@ -28,6 +30,14 @@ namespace Host
                .MinimumLevel.Debug()
                .WriteTo.Trace()
                .CreateLogger();
+
+            var options = new IdentityServerOptions
+            {
+                SigningCertificate = Certificate.Get(),
+                Factory = Factory.Configure("IdSvr3ConfigAdmin")
+            };
+
+            app.UseIdentityServer(options);
 
             app.Map("/adm", adminApp =>
             {
